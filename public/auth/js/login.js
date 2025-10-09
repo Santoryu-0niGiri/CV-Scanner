@@ -1,0 +1,37 @@
+const API_URL = '/api/v1';
+
+function showSnackbar(message, type = 'info') {
+    const snackbar = document.getElementById('snackbar');
+    snackbar.textContent = message;
+    snackbar.className = `show ${type}`;
+    setTimeout(() => { snackbar.className = snackbar.className.replace('show', ''); }, 3000);
+}
+
+async function handleLogin(event) {
+    event.preventDefault();
+    
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    try {
+        const response = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('userEmail', data.email);
+            localStorage.setItem('userName', data.name);
+            showSnackbar('Login successful! Redirecting...', 'success');
+            setTimeout(() => window.location.href = '../index.html', 1000);
+        } else {
+            showSnackbar(data.error || 'Login failed', 'error');
+        }
+    } catch (error) {
+        showSnackbar('Network error. Please try again.', 'error');
+    }
+}

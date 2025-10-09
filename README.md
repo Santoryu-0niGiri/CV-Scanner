@@ -127,23 +127,39 @@ Good luck\!
 
 ## **API Documentation**
 
-**(This section must be completed by the applicant)**
-
 ### **Keywords API**
 
 | Method | Endpoint | Description | Request Body / Params | Success Response (200) | Error Response (4xx/5xx) |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| POST | /api/v1/keywords | *Applicant to fill out* |  |  |  |
-| GET | /api/v1/keywords | *Applicant to fill out (including query params)* |  |  |  |
-| GET | /api/v1/keywords/:id | *Applicant to fill out* |  |  |  |
-| PUT | /api/v1/keywords/:id | *Applicant to fill out* |  |  |  |
-| PATCH | /api/v1/keywords/:id/status | *Applicant to fill out* |  |  |  |
-| DELETE | /api/v1/keywords/:id | *Applicant to fill out* |  |  |  |
+| POST | /api/v1/keywords | Create a new keyword | `{"name": "JavaScript"}` | `{"id": "abc123", "name": "JavaScript", "isActive": true, "createdAt": "2024-01-15T10:30:00.000Z", "updatedAt": "2024-01-15T10:30:00.000Z"}` | `400: {"error": "Keyword name is required and must be a non-empty string."}` |
+| GET | /api/v1/keywords | Retrieve paginated list of keywords with filtering and sorting | Query params: `isActive` (true/false), `sortBy` (name/createdAt), `sortOrder` (asc/desc), `page` (default: 1), `limit` (default: 10) | `{"page": 1, "limit": 10, "items": [{"id": "abc123", "name": "JavaScript", "isActive": true, "createdAt": "...", "updatedAt": "..."}]}` | N/A |
+| GET | /api/v1/keywords/:id | Get a single keyword by ID | URL param: `id` | `{"id": "abc123", "name": "JavaScript", "isActive": true, "createdAt": "...", "updatedAt": "..."}` | `404: {"error": "Keyword with ID 'abc123' not found."}` |
+| PUT | /api/v1/keywords/:id | Update a keyword's name | URL param: `id`, Body: `{"name": "TypeScript"}` | `{"id": "abc123", "name": "TypeScript", "isActive": true, "createdAt": "...", "updatedAt": "..."}` | `400: {"error": "Keyword name is required..."}`<br>`404: {"error": "Keyword with ID 'abc123' not found."}` |
+| PATCH | /api/v1/keywords/:id/status | Update a keyword's active status | URL param: `id`, Body: `{"isActive": false}` | `{"id": "abc123", "name": "JavaScript", "isActive": false, "createdAt": "...", "updatedAt": "..."}` | `400: {"error": "isActive field is required."}`<br>`404: {"error": "Keyword with ID 'abc123' not found."}` |
+| DELETE | /api/v1/keywords/:id | Delete a keyword | URL param: `id` | `{"success": true}` | `404: {"error": "Keyword with ID 'abc123' not found."}` |
 
 ### **Scan API**
 
 | Method | Endpoint | Description | Request Body / Params | Success Response (200) | Error Response (4xx/5xx) |
 | :---- | :---- | :---- | :---- | :---- | :---- |
-| POST | /api/v1/scan | *Applicant to fill out* |  |  |  |
-| POST | /api/v1/rescan | *Applicant to fill out* |  |  |  |
+| POST | /api/v1/scan | Scan a CV PDF file and extract matched keywords | `multipart/form-data` with field `file` (PDF) | `{"email": "john.doe@example.com", "extractedName": "John Doe", "matchedKeywords": ["JavaScript", "TypeScript"], "scannedAt": "...", "updatedAt": "..."}` | `400: {"error": "No CV file uploaded..."}`<br>`400: {"error": "No email address found in CV..."}` |
+| POST | /api/v1/rescan | Rescan a previously uploaded CV against current active keywords | `{"email": "john.doe@example.com"}` | `{"email": "john.doe@example.com", "extractedName": "John Doe", "matchedKeywords": ["JavaScript", "Python"], "scannedAt": "...", "updatedAt": "..."}` | `400: {"error": "Valid email address is required..."}`<br>`404: {"error": "CV with email '...' not found."}` |
+
+### **Bonus Features**
+
+| Method | Endpoint | Description | Request Body / Params | Success Response (200) | Error Response (4xx/5xx) |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| POST | /api/v1/batch/scan | Batch scan multiple CV PDF files from a ZIP archive | `multipart/form-data` with field `file` (ZIP containing PDFs) | `{"success": true, "processed": 3, "failed": 1, "results": [{"file": "john_doe.pdf", "email": "...", "extractedName": "...", "matchedKeywords": [...], "scannedAt": "..."}], "errors": [{"file": "invalid.pdf", "error": "No email found"}]}` | `400: {"error": "No ZIP file uploaded..."}` |
+
+### **Authentication API**
+
+| Method | Endpoint | Description | Request Body / Params | Success Response (200) | Error Response (4xx/5xx) |
+| :---- | :---- | :---- | :---- | :---- | :---- |
+| POST | /api/v1/auth/register | Register a new user account | `{"email": "user@example.com", "password": "password123", "name": "John Doe"}` | `{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "email": "user@example.com", "name": "John Doe"}` | `400: {"error": "Email and password are required."}`<br>`400: {"error": "User already exists."}` |
+| POST | /api/v1/auth/login | Login and receive JWT token | `{"email": "user@example.com", "password": "password123"}` | `{"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...", "email": "user@example.com", "name": "John Doe"}` | `400: {"error": "Email and password are required."}`<br>`401: {"error": "Invalid credentials."}` |
+
+**Note:** All Keywords and Scan API endpoints require authentication. Include the JWT token in the Authorization header:
+```
+Authorization: Bearer <your-jwt-token>
+```
 

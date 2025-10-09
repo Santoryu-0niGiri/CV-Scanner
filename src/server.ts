@@ -3,7 +3,6 @@ import { initializeFirebase } from './config/firebase';
 
 const PORT = process.env.PORT || 8080;
 
-// Initialize Firebase Admin SDK
 try {
     initializeFirebase();
     console.log('Firebase Admin SDK initialized successfully.');

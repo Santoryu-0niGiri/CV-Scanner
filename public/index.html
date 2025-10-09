@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV Scanner - Professional Resume Analysis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header style="display: flex; justify-content: space-between; align-items: center;">
+            <h1><i class="fas fa-file-alt"></i> CV Scanner</h1>
+            <div>
+                
+                <span id="userInfo" style="display: inline-flex; align-items: center; gap: 6px; margin-right: 15px; color: #666;"></span>
+                <button onclick="logout()" class="btn-danger btn-small">Logout</button>
+            </div>
+        </header>
+        
+        <div class="section">
+            <h2><i class="fas fa-tags"></i> Manage Keywords</h2>
+            <p class="section-description">Add skills and keywords to scan for in CVs</p>
+            <div class="keyword-input-group">
+                <input type="text" id="keywordInput" placeholder="Enter a keyword (e.g., JavaScript, Python, Leadership)" />
+                <button class="btn-success" onclick="addKeyword()">Add Keyword</button>
+            </div>
+            <div class="current-keywords">
+                <strong>Active Keywords:</strong>
+                <div id="keywordsList" class="keywords">
+                    <span style="color: #666; font-size: 14px;">No keywords added yet</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2><i class="fas fa-upload"></i> Upload & Scan CV</h2>
+            <p class="section-description">Upload a single PDF resume for analysis</p>
+            <div class="file-upload-wrapper">
+                <input type="file" id="cvFile" accept=".pdf" />
+                <button id="scanBtn" class="btn-primary" onclick="scanCV()">Scan CV</button>
+            </div>
+            <div class="info"><i class="fas fa-lightbulb"></i> Ensure keywords are added before scanning for accurate results</div>
+            <div id="scanResults" class="results"></div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-box"></i> Batch Scan (ZIP Upload)</h2>
+            <p class="section-description">Upload multiple CVs at once in a ZIP file</p>
+            <div class="file-upload-wrapper">
+                <input type="file" id="zipFile" accept=".zip" />
+                <button id="batchScanBtn" class="btn-primary" onclick="batchScanCV()">Batch Scan CVs</button>
+            </div>
+            <div class="info"><i class="fas fa-file-archive"></i> Upload a ZIP file containing multiple PDF resumes</div>
+            <div id="batchResults"></div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-sync-alt"></i> Rescan Existing CV</h2>
+            <p class="section-description">Re-analyze a previously scanned CV with updated keywords</p>
+            <div class="keyword-input-group">
+                <input type="email" id="rescanEmail" placeholder="Enter email (e.g., john.doe@example.com)" />
+                <button class="btn-warning" onclick="rescanCV()">Rescan CV</button>
+            </div>
+            <div class="info"><i class="fas fa-info-circle"></i> Rescan uses stored CV data against current active keywords</div>
+            <div id="rescanResults" class="results"></div>
+        </div>
+
+        <div class="section">
+            <h2><i class="fas fa-chart-bar"></i> View All Scanned CVs</h2>
+            <p class="section-description">Browse and manage all previously scanned resumes</p>
+            <button class="btn-info" onclick="openModal()">View All Scanned CVs</button>
+        </div>
+    </div>
+
+    <!-- Snackbar Notification -->
+    <div id="snackbar"></div>
+
+    <!-- Modal for CV List -->
+    <div id="cvModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-list"></i> All Scanned CVs</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="cvList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>

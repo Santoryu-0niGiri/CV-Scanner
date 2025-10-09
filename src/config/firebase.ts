@@ -18,7 +18,6 @@ export const initializeFirebase = () => {
         });
 
         db = admin.firestore();
-        // Optional: Set Firestore settings if needed
         db.settings({ ignoreUndefinedProperties: true });
 
     } catch (error: any) {
