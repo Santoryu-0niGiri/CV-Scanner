@@ -1,4 +1,3 @@
-// Keyword data model
 export interface Keyword {
   id: string;
   name: string;
@@ -7,7 +6,6 @@ export interface Keyword {
   updatedAt: string;
 }
 
-// Scanned CV data model
 export interface ScannedCV {
   email: string;
   extractedName: string;
@@ -17,13 +15,11 @@ export interface ScannedCV {
   updatedAt: string;
 }
 
-// Generic API response
 export interface ApiResponse<T> {
   items: T[];
   total?: number;
 }
 
-// API response types
 export interface ScanResponse {
   email: string;
   extractedName: string;
@@ -53,13 +49,11 @@ export interface BatchScanResponse {
   errors: BatchScanError[];
 }
 
-// Helper function return types
 export interface ExtractedData {
   text: string;
   name: string;
 }
 
-// Keyword list response
 export interface KeywordListResponse {
   page?: number;
   limit?: number;
@@ -67,7 +61,6 @@ export interface KeywordListResponse {
   total?: number;
 }
 
-// CV list response
 export interface CVListResponse {
   items: ScannedCV[];
   total?: number;

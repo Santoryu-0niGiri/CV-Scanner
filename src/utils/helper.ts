@@ -66,7 +66,6 @@ function extractNameFromText(text: string): string | null {
     return /^(education|contact|skills|experience|work|profile|reference|languages|summary|objective|certifications?|awards?|projects?|publications?|interests?|hobbies)$/i.test(line);
   };
   
-  // Check for consecutive single-word lines forming a name
   for (let i = 0; i < lines.length - 1; i++) {
     const line1 = lines[i];
     const line2 = lines[i + 1];
@@ -79,7 +78,6 @@ function extractNameFromText(text: string): string | null {
     }
   }
   
-  // Check for names on single line
   for (const line of lines) {
     if (!line || isCommonHeader(line) || isJobTitle(line)) continue;
 
