@@ -6,6 +6,10 @@ import { errorHandler, notFoundHandler } from './middlewares/error.middleware';
 
 dotenv.config();
 
+/**
+ * Express application instance
+ * Configures middleware, routes, and error handlers
+ */
 const app: Application = express();
 
 app.use(cors());

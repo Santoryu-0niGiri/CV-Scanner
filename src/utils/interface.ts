@@ -1,3 +1,6 @@
+/**
+ * Keyword entity representing a skill to scan for in CVs
+ */
 export interface Keyword {
   id: string;
   name: string;
@@ -6,6 +9,9 @@ export interface Keyword {
   updatedAt: string;
 }
 
+/**
+ * Scanned CV entity with matched keywords
+ */
 export interface ScannedCV {
   email: string;
   extractedName: string;
@@ -15,11 +21,17 @@ export interface ScannedCV {
   updatedAt: string;
 }
 
+/**
+ * Generic API response wrapper
+ */
 export interface ApiResponse<T> {
   items: T[];
   total?: number;
 }
 
+/**
+ * Response format for single CV scan
+ */
 export interface ScanResponse {
   email: string;
   extractedName: string;
@@ -28,6 +40,9 @@ export interface ScanResponse {
   updatedAt: string;
 }
 
+/**
+ * Single result in batch scan operation
+ */
 export interface BatchScanResult {
   file: string;
   email: string;
@@ -36,11 +51,17 @@ export interface BatchScanResult {
   scannedAt: string;
 }
 
+/**
+ * Error entry in batch scan operation
+ */
 export interface BatchScanError {
   file: string;
   error: string;
 }
 
+/**
+ * Response format for batch CV scan
+ */
 export interface BatchScanResponse {
   success: boolean;
   processed: number;
@@ -49,11 +70,17 @@ export interface BatchScanResponse {
   errors: BatchScanError[];
 }
 
+/**
+ * Extracted data from PDF parsing
+ */
 export interface ExtractedData {
   text: string;
   name: string;
 }
 
+/**
+ * Paginated keyword list response
+ */
 export interface KeywordListResponse {
   page?: number;
   limit?: number;
@@ -61,6 +88,9 @@ export interface KeywordListResponse {
   total?: number;
 }
 
+/**
+ * CV list response
+ */
 export interface CVListResponse {
   items: ScannedCV[];
   total?: number;

@@ -5,10 +5,17 @@ interface CacheItem {
     timestamp: number;
 }
 
+/**
+ * Simple in-memory cache with TTL support
+ * Used to cache active keywords and reduce Firestore reads
+ */
 class SimpleCache {
     private cache: Map<string, CacheItem> = new Map();
     private ttl: number = CACHE_CONFIG.TTL;
 
+    /**
+     * Store data in cache with current timestamp
+     */
     set(key: string, data: unknown): void {
         this.cache.set(key, {
             data,
@@ -16,6 +23,10 @@ class SimpleCache {
         });
     }
 
+    /**
+     * Retrieve data from cache if not expired
+     * @returns Cached data or null if expired/not found
+     */
     get(key: string): unknown | null {
         const item = this.cache.get(key);
         if (!item) return null;
@@ -28,6 +39,9 @@ class SimpleCache {
         return item.data;
     }
 
+    /**
+     * Clear specific key or entire cache
+     */
     clear(key?: string): void {
         if (key) {
             this.cache.delete(key);

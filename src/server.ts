@@ -5,13 +5,7 @@ const PORT = process.env.PORT || 8080;
 
 try {
     initializeFirebase();
-    console.log('Firebase Admin SDK initialized successfully.');
-    
-    app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`);
-    });
-
+    app.listen(PORT);
 } catch (error) {
-    console.error('Failed to initialize Firebase Admin SDK:', error);
     process.exit(1);
 }

@@ -1,5 +1,9 @@
 const API_URL = '/api/v1';
 
+if (localStorage.getItem('token')) {
+    window.location.replace('../index.html');
+}
+
 function showSnackbar(message, type = 'info') {
     const snackbar = document.getElementById('snackbar');
     snackbar.textContent = message;
@@ -27,7 +31,7 @@ async function handleLogin(event) {
             localStorage.setItem('userEmail', data.email);
             localStorage.setItem('userName', data.name);
             showSnackbar('Login successful! Redirecting...', 'success');
-            setTimeout(() => window.location.href = '../index.html', 1000);
+            setTimeout(() => window.location.replace('../index.html'), 1000);
         } else {
             showSnackbar(data.error || 'Login failed', 'error');
         }

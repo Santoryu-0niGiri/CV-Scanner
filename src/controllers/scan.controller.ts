@@ -1,3 +1,8 @@
+/**
+ * CV Scanning Controller
+ * Handles CV upload, scanning, keyword matching, and batch processing
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import admin = require('firebase-admin');
 import AdmZip from 'adm-zip';
@@ -8,6 +13,10 @@ import { cache } from '../utils/cache';
 import { ScanResponse, BatchScanResponse, BatchScanResult, BatchScanError, CVListResponse } from '../utils/interface';
 import { ValidationError, NotFoundError } from '../utils/errors';
 
+/**
+ * Retrieves active keywords from cache or Firestore database
+ * @returns Promise<string[]> Array of active keyword names
+ */
 async function getActiveKeywords(): Promise<string[]> {
     const cached = cache.get('active_keywords');
     
@@ -22,14 +31,38 @@ async function getActiveKeywords(): Promise<string[]> {
     return activeKeywords;
 }
 
+/**
+ * Validates if uploaded document is a CV by checking for common CV keywords
+ * @param text - Extracted text from PDF document
+ * @returns boolean - True if document contains at least 2 CV-related keywords
+ */
+function isCVDocument(text: string): boolean {
+  const lowerText = text.toLowerCase();
+  const cvKeywords = ['profile', 'about me', 'contact', 'skills', 'experience', 'work experience', 'education', 'qualification', 'resume', 'curriculum vitae'];
+  const matchCount = cvKeywords.filter(keyword => lowerText.includes(keyword)).length;
+  return matchCount >= 2;
+}
+
+
+/**
+ * Scans a single PDF CV file and matches it against active keywords
+ * @route POST /api/v1/scan
+ * @param req.file - Uploaded PDF file (multipart/form-data)
+ * @returns ScanResponse with email, name, matched keywords, and timestamps
+ * @throws ValidationError if no file uploaded, invalid CV, or no email found
+ */
 export const scanCv = async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) {
       throw new ValidationError('No CV file uploaded. Please upload a PDF file.');
     }
 
-    const { text: cvText, name: extractedName } = await extractTextAndName(req.file.buffer);
-    const email = extractEmailFromText(cvText);
+      const { text: cvText, name: extractedName } = await extractTextAndName(req.file.buffer);
+      const email = extractEmailFromText(cvText);
+      
+        if (!isCVDocument(cvText)) {
+        throw new ValidationError('The uploaded file does not appear to be a CV/resume. Please upload a valid CV document.');
+      }
     
     if (!email) {
       throw new ValidationError('No email address found in CV. Please ensure the CV contains a valid email.');
@@ -65,6 +98,14 @@ export const scanCv = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+/**
+ * Re-evaluates a previously scanned CV against current active keywords
+ * @route POST /api/v1/rescan
+ * @param req.body.email - Email address of the CV to rescan
+ * @returns ScanResponse with updated matched keywords
+ * @throws ValidationError if email is invalid
+ * @throws NotFoundError if CV not found in database
+ */
 export const rescanCv = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.body;
@@ -105,6 +146,11 @@ export const rescanCv = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
+/**
+ * Retrieves all scanned CVs from Firestore database
+ * @route GET /api/v1/scanned-cvs
+ * @returns CVListResponse containing array of all scanned CVs
+ */
 export const getAllScannedCvs = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const snapshot = await getScannedCvsCollection().get();
@@ -124,6 +170,14 @@ export const getAllScannedCvs = async (req: Request, res: Response, next: NextFu
     }
 };
 
+/**
+ * Deletes a scanned CV from the database
+ * @route DELETE /api/v1/scanned-cvs/:email
+ * @param req.params.email - Email address of CV to delete
+ * @returns Success response
+ * @throws ValidationError if email not provided
+ * @throws NotFoundError if CV not found
+ */
 export const deleteScannedCv = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email } = req.params;
@@ -140,6 +194,13 @@ export const deleteScannedCv = async (req: Request, res: Response, next: NextFun
     }
 };
 
+/**
+ * Processes multiple PDF CVs from a ZIP archive in batch
+ * @route POST /api/v1/batch/scan
+ * @param req.file - Uploaded ZIP file containing PDF CVs
+ * @returns BatchScanResponse with processed/failed counts and detailed results
+ * @throws ValidationError if no ZIP uploaded or no PDFs found in ZIP
+ */
 export const batchScanCvs = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (!req.file) {

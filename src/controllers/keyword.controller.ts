@@ -1,3 +1,8 @@
+/**
+ * Keywords Controller
+ * Manages CRUD operations for skill keywords with filtering, sorting, and pagination
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import admin = require('firebase-admin');
 import { getKeywordsCollection } from '../models/keyword.model';
@@ -7,6 +12,11 @@ import { Keyword, KeywordListResponse } from '../utils/interface';
 import { ValidationError, NotFoundError } from '../utils/errors';
 import { PAGINATION } from '../utils/constants';
 
+/**
+ * Creates a new keyword in the database
+ * @route POST /api/v1/keywords
+ * @access Protected (requires JWT)
+ */
 export const createKeyword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { name } = req.body;
@@ -39,6 +49,11 @@ export const createKeyword = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+/**
+ * Retrieves paginated list of keywords with optional filtering and sorting
+ * @route GET /api/v1/keywords?isActive=true&sortBy=name&sortOrder=asc&page=1&limit=10
+ * @access Protected (requires JWT)
+ */
 export const getKeywords = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { isActive, sortBy = "createdAt", sortOrder = "desc", page = "1", limit = String(PAGINATION.DEFAULT_LIMIT) } = req.query;
@@ -78,6 +93,11 @@ export const getKeywords = async (req: Request, res: Response, next: NextFunctio
     }
 };
 
+/**
+ * Retrieves a single keyword by its ID
+ * @route GET /api/v1/keywords/:id
+ * @access Protected (requires JWT)
+ */
 export const getKeywordById = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
@@ -101,6 +121,11 @@ export const getKeywordById = async (req: Request, res: Response, next: NextFunc
     }
 };
 
+/**
+ * Updates a keyword's name
+ * @route PUT /api/v1/keywords/:id
+ * @access Protected (requires JWT)
+ */
 export const updateKeyword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
@@ -134,6 +159,11 @@ export const updateKeyword = async (req: Request, res: Response, next: NextFunct
     }
 };
 
+/**
+ * Updates a keyword's active status (activate/deactivate)
+ * @route PATCH /api/v1/keywords/:id/status
+ * @access Protected (requires JWT)
+ */
 export const updateKeywordStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;
@@ -165,6 +195,11 @@ export const updateKeywordStatus = async (req: Request, res: Response, next: Nex
     }
 };
 
+/**
+ * Deletes a keyword from the database
+ * @route DELETE /api/v1/keywords/:id
+ * @access Protected (requires JWT)
+ */
 export const deleteKeyword = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { id } = req.params;

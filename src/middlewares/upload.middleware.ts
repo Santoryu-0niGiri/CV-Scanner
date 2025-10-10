@@ -3,6 +3,10 @@ import { FILE_LIMITS } from '../utils/constants';
 
 const storage = multer.memoryStorage();
 
+/**
+ * Multer middleware for file uploads
+ * Accepts PDF and ZIP files up to 5MB
+ */
 export const upload = multer({ 
     storage: storage,
     limits: { fileSize: FILE_LIMITS.MAX_FILE_SIZE },

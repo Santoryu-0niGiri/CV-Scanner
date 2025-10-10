@@ -1,6 +1,9 @@
 import pdf from "pdf-parse";
 import { ExtractedData } from "./interface";
 
+/**
+ * Converts various types to boolean
+ */
 export function toBoolean(value: unknown): boolean {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
@@ -11,11 +14,17 @@ export function toBoolean(value: unknown): boolean {
   return Boolean(value);
 }
 
+/**
+ * Validates email format
+ */
 export function isValidEmail(email: string): boolean {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/;
   return emailRegex.test(email);
 }
 
+/**
+ * Converts string to title case
+ */
 function toTitleCase(s: string): string {
   return s
     .toLowerCase()
@@ -25,6 +34,9 @@ function toTitleCase(s: string): string {
     .trim();
 }
 
+/**
+ * Extracts email address from text with normalization
+ */
 export function extractEmailFromText(rawText?: string | null): string | null {
   if (!rawText) return null;
   let t = String(rawText);
@@ -54,6 +66,9 @@ export function extractEmailFromText(rawText?: string | null): string | null {
   return null;
 }
 
+/**
+ * Extracts person's name from CV text using pattern matching
+ */
 function extractNameFromText(text: string): string | null {
   const lines = text.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
   
@@ -113,6 +128,11 @@ function extractNameFromText(text: string): string | null {
   return null;
 }
 
+/**
+ * Extracts text and name from PDF buffer
+ * @param buffer PDF file buffer
+ * @returns Extracted text and name
+ */
 export async function extractTextAndName(buffer: Buffer): Promise<ExtractedData> {
   let parsed;
   let attempts = 0;

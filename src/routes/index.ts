@@ -4,12 +4,13 @@ import scanRoutes from './scan.routes';
 import authRoutes from './auth.routes';
 import { authenticate } from '../middlewares/auth.middleware';
 
+/**
+ * Main API router
+ * Combines all route modules with authentication
+ */
 const router = Router();
 
-// Public routes
 router.use('/auth', authRoutes);
-
-// Protected routes
 router.use('/keywords', authenticate, keywordRoutes);
 router.use('/', authenticate, scanRoutes);
 

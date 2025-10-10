@@ -2,10 +2,17 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { UnauthorizedError } from '../utils/errors';
 
+/**
+ * Extended request interface with user data from JWT
+ */
 export interface AuthRequest extends Request {
     user?: { userId: string; email: string };
 }
 
+/**
+ * JWT authentication middleware
+ * Verifies Bearer token and attaches user data to request
+ */
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
         const token = req.headers.authorization?.replace('Bearer ', '');

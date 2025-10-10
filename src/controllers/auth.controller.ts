@@ -1,3 +1,8 @@
+/**
+ * Authentication Controller
+ * Handles user registration, login, and JWT token generation
+ */
+
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -7,6 +12,11 @@ import { isValidEmail } from '../utils/helper';
 
 const getUsersCollection = () => admin.firestore().collection('users');
 
+/**
+ * Registers a new user with email and password
+ * @route POST /api/v1/auth/register
+ * @access Public
+ */
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password, name } = req.body;
@@ -55,6 +65,11 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 };
 
+/**
+ * Authenticates user and returns JWT token
+ * @route POST /api/v1/auth/login
+ * @access Public
+ */
 export const login = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const { email, password } = req.body;

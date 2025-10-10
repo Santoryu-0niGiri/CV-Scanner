@@ -12,9 +12,10 @@ function getAuthHeaders() {
 function checkAuth() {
     const token = localStorage.getItem('token');
     if (!token) {
-        window.location.href = 'auth/login.html';
+        window.location.replace('auth/login.html');
         return false;
     }
+    document.body.className = 'auth-verified';
     const userName = localStorage.getItem('userName') || 'User';
     const userEmail = localStorage.getItem('userEmail') || '';
     document.getElementById('userInfo').innerHTML = `<i class="fas fa-user"></i> ${userName}`;
@@ -25,7 +26,7 @@ function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
-    window.location.href = 'auth/login.html';
+    window.location.replace('auth/login.html');
 }
 
 function showSnackbar(message, type = 'success') {
@@ -57,6 +58,14 @@ function showConfirm(message, onConfirm) {
 }
 window.onload = async function () {
     if (!checkAuth()) return;
+    window.history.pushState(null, '', window.location.href);
+    window.onpopstate = () => {
+        if (!localStorage.getItem('token')) {
+            window.location.replace('auth/login.html');
+        } else {
+            window.history.pushState(null, '', window.location.href);
+        }
+    };
     await loadKeywords();
 };
 async function loadKeywords() {
@@ -100,7 +109,7 @@ async function addKeyword() {
         await loadKeywords();
     }
     catch (error) {
-        showSnackbar(`Error: ${error.message}`, 'error');
+        showSnackbar(`${error.message}`, 'error');
     }
 }
 function displayKeywords() {
@@ -130,7 +139,7 @@ async function deleteKeyword(id) {
             await loadKeywords();
         }
         catch (error) {
-            showSnackbar(`Error: ${error.message}`, 'error');
+            showSnackbar(`${error.message}`, 'error');
         }
     });
 }
@@ -146,7 +155,7 @@ async function scanCV() {
     formData.append('file', fileInput.files[0]);
     scanBtn.disabled = true;
     showSnackbar('Scanning CV...', 'info');
-    resultsDiv.innerHTML = '';
+    resultsDiv.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Scanning CV, please wait...</p></div>';
     try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_URL}/scan`, {
@@ -160,13 +169,14 @@ async function scanCV() {
         }
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.message || 'Scan failed');
+            throw new Error(data.error || 'Scan failed');
         }
         showSnackbar('✓ CV scanned successfully!', 'success');
         displayResults(data, resultsDiv);
     }
     catch (error) {
-        showSnackbar(`Error: ${error.message}`, 'error');
+        resultsDiv.innerHTML = '';
+        showSnackbar(`${error.message}`, 'error');
     }
     finally {
         scanBtn.disabled = false;
@@ -181,7 +191,7 @@ async function rescanCV() {
         return;
     }
     showSnackbar('Rescanning CV...', 'info');
-    resultsDiv.innerHTML = '';
+    resultsDiv.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Rescanning CV, please wait...</p></div>';
     try {
         const response = await fetch(`${API_URL}/rescan`, {
             method: 'POST',
@@ -194,13 +204,14 @@ async function rescanCV() {
         }
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.message || 'Rescan failed');
+            throw new Error(data.error || 'Rescan failed');
         }
         showSnackbar('✓ CV rescanned successfully!', 'success');
         displayResults(data, resultsDiv, true);
     }
     catch (error) {
-        showSnackbar(`Error: ${error.message}`, 'error');
+        resultsDiv.innerHTML = '';
+        showSnackbar(`${error.message}`, 'error');
     }
 }
 function displayResults(data, resultsDiv, isRescan = false) {
@@ -246,7 +257,7 @@ window.onclick = function (event) {
 };
 async function viewAllCVs() {
     const cvListDiv = document.getElementById('cvList');
-    cvListDiv.innerHTML = '<div class="loading">Loading scanned CVs...</div>';
+    cvListDiv.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Loading scanned CVs...</p></div>';
     try {
         const response = await fetch(`${API_URL}/scanned-cvs`, {
             headers: getAuthHeaders()
@@ -284,13 +295,13 @@ async function viewAllCVs() {
         `;
     }
     catch (error) {
-        cvListDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        cvListDiv.innerHTML = `<div class="error">${error.message}</div>`;
     }
 }
 async function deleteCv(email) {
     showConfirm(`Delete CV for ${email}?`, async () => {
         const cvListDiv = document.getElementById('cvList');
-        cvListDiv.innerHTML = '<div class="loading">Deleting CV...</div>';
+        cvListDiv.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Deleting CV...</p></div>';
         try {
             const response = await fetch(`${API_URL}/scanned-cvs/${email}`, {
                 method: 'DELETE',
@@ -306,7 +317,7 @@ async function deleteCv(email) {
             await viewAllCVs();
         }
         catch (error) {
-            cvListDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            cvListDiv.innerHTML = `<div class="error">${error.message}</div>`;
         }
     });
 }
@@ -329,7 +340,7 @@ async function batchScanCV() {
     formData.append('file', fileInput.files[0]);
     batchBtn.disabled = true;
     showSnackbar('Processing batch scan...', 'info');
-    resultsDiv.innerHTML = '';
+    resultsDiv.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Processing batch scan, please wait...</p></div>';
     try {
         const token = localStorage.getItem('token');
         const response = await fetch(`${API_URL}/batch/scan`, {
@@ -343,13 +354,14 @@ async function batchScanCV() {
         }
         const data = await response.json();
         if (!response.ok) {
-            throw new Error(data.message || 'Batch scan failed');
+            throw new Error(data.error || 'Batch scan failed');
         }
         showSnackbar(`✓ Batch scan completed! ${data.processed} processed, ${data.failed} failed`, 'success');
         displayBatchResults(data, resultsDiv);
     }
     catch (error) {
-        showSnackbar(`Error: ${error.message}`, 'error');
+        resultsDiv.innerHTML = '';
+        showSnackbar(`${error.message}`, 'error');
     }
     finally {
         batchBtn.disabled = false;
@@ -434,7 +446,7 @@ async function previewCV(email) {
         };
     }
     catch (error) {
-        showSnackbar(`Error: ${error.message}`, 'error');
+        showSnackbar(`${error.message}`, 'error');
     }
 }
 // Expose functions to global scope for HTML onclick handlers
